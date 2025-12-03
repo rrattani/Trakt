@@ -3,7 +3,7 @@ const config = require('./config.js')();
 
 let manifest = {
     "id": "community.trakt-tv",
-    "version": "0.2.7",
+    "version": "1.0.0",
     "name": "Trakt Tv",
     "description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 };
