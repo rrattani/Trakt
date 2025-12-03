@@ -4,3 +4,5 @@
 beamup.json
 /old
 .env
+manifest.json
+oauth_configuration.json

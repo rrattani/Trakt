@@ -424,7 +424,7 @@
                                     able to get private lists, watchlist and recommendations</span>
                                 <div class="mt-5 flex flex-col items-center">
                                     <a
-                                        :href="`https://trakt.tv/oauth/authorize?client_id=0dc1a6147cf5abf4c3406109b1080e243133beae899ac7f87c7f82fa8b941720&redirect_uri=${encodeURIComponent(Consts.currentUrl)}&response_type=code`">
+                                        :href="`https://trakt.tv/oauth/authorize?client_id=${oauth.client_id}&redirect_uri=${encodeURIComponent(Consts.currentUrl)}&response_type=code`">
                                         <button type="button" id="Auth"
                                             class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Login
                                             to Trakt.tv</button></a>
@@ -700,6 +700,7 @@ import { Modal, Dropdown } from 'flowbite'
 import { useHead } from "@vueuse/head";
 import * as manifest from '../../manifest.json';
 import * as sortOpts from '../../sortOpts.json';
+import * as oauth from '../../oauth_configuration.json';
 import dropdown from 'vue-dropdowns';
 import VueToggles from "vue-toggles";
 
@@ -946,7 +947,7 @@ function updateAuthButton() {
     } else {
         document.getElementById('Auth').style.background = 'red';
         document.getElementById('Auth').innerHTML = 'Login to Trakt.tv';
-        document.getElementById('Auth').parentNode.href = `https://trakt.tv/oauth/authorize?client_id=0dc1a6147cf5abf4c3406109b1080e243133beae899ac7f87c7f82fa8b941720&redirect_uri=${encodeURIComponent(Consts.currentUrl)}&response_type=code`;
+        document.getElementById('Auth').parentNode.href = `https://trakt.tv/oauth/authorize?client_id=${oauth.client_id}&redirect_uri=${encodeURIComponent(Consts.currentUrl)}&response_type=code`;
         document.getElementById('Auth').disabled = false;
     }
 }

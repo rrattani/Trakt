@@ -4,7 +4,8 @@
 	"description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 	"main": "server.js",
 	"scripts": {		
-		"Build": "cd vue && npm i && npm run build",
+		"preBuild": "node manifest.js",
+		"Build": "cd vue && npm i && npm run build",		
 		"prestart": "node manifest.js",
 		"start": "node server.js",
 		"dev": "nodemon server.js"

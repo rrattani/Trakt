@@ -23,4 +23,10 @@ manifest = { ...manifest,
 
 fs.writeFileSync('./manifest.json', JSON.stringify(manifest));
 
+let oauth_configuration = {
+    "client_id": `${config.client_id}`
+}
+
+fs.writeFileSync('./oauth_configuration.json', JSON.stringify(oauth_configuration));
+
 //module.exports = manifest;
