@@ -28,7 +28,7 @@ WORKDIR /app
 
 # Copy package files and production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built Vue app from builder
 COPY --from=builder /app/vue/dist ./vue/dist
