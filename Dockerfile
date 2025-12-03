@@ -1,6 +1,9 @@
 # Multi-stage build for efficiency
 FROM node:18-alpine AS builder
 
+# Better: pin exact node version (for reproducibility)
+ARG NODE_ENV=production
+
 WORKDIR /app
 
 # Copy package files
