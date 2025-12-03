@@ -1,9 +1,6 @@
 # Multi-stage build for efficiency
 FROM node:18-alpine AS builder
 
-# Better: pin exact node version (for reproducibility)
-ARG NODE_ENV=production
-
 WORKDIR /app
 
 # Copy package files
@@ -31,7 +28,7 @@ WORKDIR /app
 
 # Copy package files and production dependencies
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --only=production
 
 # Copy built Vue app from builder
 COPY --from=builder /app/vue/dist ./vue/dist
