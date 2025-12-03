@@ -30,9 +30,9 @@ function getConfig(env = ENV){
   config.sort_array = getSortValues() // ["added asc", "added desc", "title asc", "title desc", "released asc", "released desc", "runtime asc", "runtime desc", "votes asc", "votes desc", "rating asc", "rating desc", "rank asc", "rank desc"];
   config.count = 100;
   switch (env) {
-    case 'beamup':
+    case 'production':
       config.port = process.env.PORT;
-      config.local = "https://2ecbbd610840-trakt.baby-beamup.club"
+      config.local = process.env.BASE_URL;      
       break;
 
     case 'local':
