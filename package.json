@@ -3,8 +3,7 @@
 	"version": "0.2.7",
 	"description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 	"main": "server.js",
-	"scripts": {
-		"preBuild": "node manifest.js",
+	"scripts": {		
 		"Build": "cd vue && npm i && npm run build",
 		"prestart": "node manifest.js",
 		"start": "node server.js",

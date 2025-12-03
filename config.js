@@ -1,4 +1,3 @@
-var ENV = process.env.NODE_ENV ? 'beamup' : 'local';
 require('dotenv').config();
 const sortOpts = require('./sortOpts.json');
 
@@ -13,7 +12,7 @@ function getSortValues(){
   return values;
 }
 
-function getConfig(env = ENV){
+function getConfig(){
   var config = {
     host: "https://api.trakt.tv",
     'API_KEY': process.env.API_KEY,
@@ -29,17 +28,9 @@ function getConfig(env = ENV){
   config.genres = ["action", "adventure", "animation", "anime", "comedy", "crime", "disaster", "documentary", "Donghua", "drama", "eastern", "family", "fan-film", "fantasy", "film-noir", "history", "holiday", "horror", "indie", "music", "musical", "mystery", "none", "road", "romance", "science-fiction", "short", "sports", "sporting-event", "suspense", "thriller", "tv-movie", "war", "western"];
   config.sort_array = getSortValues() // ["added asc", "added desc", "title asc", "title desc", "released asc", "released desc", "runtime asc", "runtime desc", "votes asc", "votes desc", "rating asc", "rating desc", "rank asc", "rank desc"];
   config.count = 100;
-  switch (env) {
-    case 'production':
-      config.port = process.env.PORT;
-      config.local = process.env.BASE_URL;      
-      break;
-
-    case 'local':
-      config.port = 63355;
-      config.local = "http://127.0.0.1:" + config.port;
-      break;
-  }
+  config.port = process.env.PORT;
+  config.local = process.env.BASE_URL;      
+  
   return config;
 }
 
