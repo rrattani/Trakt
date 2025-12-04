@@ -65,7 +65,7 @@
                         <div class="p-6 space-y-6">
                             <div class="flex flex-col w-full gap-3 z-10">
                                 <div v-for="item in state.searchResults" :key="item.id"
-                                    class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                                     <a href="#">
                                         <h5
                                             class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -134,7 +134,7 @@
                         <div class="p-6 space-y-6">
                             <div class="flex flex-col w-full gap-3 z-10">
                                 <div v-for="item in state.lists_personal" :key="item.id"
-                                    class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                                     <a href="#">
                                         <h5
                                             class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -179,7 +179,7 @@
                 class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
                 <div class="relative p-4 w-full max-w-2xl h-full md:max-h-screen overflow-hidden">
                     <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full flex flex-col">
                         <!-- Modal header -->
                         <div class="modal-header">
                             <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
@@ -199,10 +199,22 @@
                             </div>
                         </div>
                         <!-- Modal body -->
-                        <div class="p-6 space-y-6">
-                            <div class="flex flex-col w-full gap-3 z-10">
+                        <div class="p-6 space-y-6 flex-1 overflow-y-auto relative">
+                            <!-- Show spinner when loading -->
+                            <div v-if="state.lists_loading.popular" class="absolute inset-0 bg-white/70 dark:bg-gray-900/70 flex items-center justify-center z-50">
+                                <div class="text-center">
+                                    <svg class="w-12 h-12 mx-auto text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <p class="mt-2 text-gray-700 dark:text-gray-300">Loading lists...</p>
+                                </div>
+                            </div>
+
+                            <!-- Show lists when not loading -->
+                            <div v-else class="flex flex-col w-full gap-3 z-10">
                                 <div v-for="item in state.lists_popular" :key="item.id"
-                                    class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                                     <a href="#">
                                         <h5
                                             class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -235,6 +247,33 @@
                                         </svg>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- Footer -->
+                        <div class="footer-modal border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                            <div class="flex items-center p-6 space-x-2 rounded-b">
+                                <div class="flex items-center justify-center mt-6 space-x-2">
+                                    <button  @click="previousPage('popular')"  type="button"
+                                        :disabled="!state.pagination_popular || state.pagination_popular.page <= 1" 
+                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"> 
+                                        Previous 
+                                    </button>
+                                    <!-- Safe page display -->
+                                    <span class="text-sm text-gray-700 dark:text-gray-300"> 
+                                        Page {{ state.pagination_popular?.page || 1 }} of {{ state.pagination_popular?.total_pages || 1 }}
+                                    </span>
+                                    <button @click="nextPage('popular')" type="button" 
+                                        :disabled="!state.pagination_popular || state.pagination_popular.page >= state.pagination_popular.total_pages"
+                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"> 
+                                        Next 
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-6 space-x-2 rounded-b">
+                                <button @click="state.popularModal.toggle" type="button" 
+                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"> 
+                                    Close 
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -271,7 +310,7 @@
                         <div class="p-6 space-y-6">
                             <div class="flex flex-col w-full gap-3 z-10">
                                 <div v-for="item in state.lists_trending" :key="item.id"
-                                    class="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
                                     <a href="#">
                                         <h5
                                             class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -752,6 +791,7 @@ const state = reactive({
     url: '',
     searchResults: [],
     searchQuery: '',
+    searchPagination: null,
     listUrl: '',
     drag: false,
     genericDrag: false,
@@ -761,6 +801,14 @@ const state = reactive({
     lists_popular: null,
     lists_trending: null,
     lists_personal: null,
+    pagination_popular: null,
+    pagination_trending: null,
+    pagination_personal: null,
+    lists_loading: {
+        popular: false,
+        trending: false,
+        personal: false
+    },
     install: null,
     popularModal: null,
     trendingModal: null,
@@ -1107,13 +1155,42 @@ function updateSortingDirection(direction, list) {
     }
 }
 
+function startsWithIgnoreCase(str, searchStr) {
+    return str.toLowerCase().startsWith(searchStr.toLowerCase());
+}
+
+async function fetchLists(endpoint, params = {}) {
+    const response = await client.get(endpoint, { params }).catch(e => {
+        console.error(e);
+        return { data: { items: [], page: 1, total_pages: 1 } };
+    });
+    return response;
+}
+
 async function getListsOflists() {
     try {
-        state.lists_popular = (await client.get('/lists/popular'))?.data || [];
-        state.lists_trending = (await client.get('/lists/trending'))?.data || [];
+        const popularResponse = await fetchLists('/lists/popular');
+        state.lists_popular = popularResponse?.data?.items || [];
+        state.pagination_popular = {
+            page: popularResponse?.data?.page || 1,
+            total_pages: popularResponse?.data?.total_pages || 1
+        };
+        
+        const trendingResponse = await fetchLists('/lists/trending');
+        state.lists_trending = trendingResponse?.data?.items || [];
+        state.pagination_trending = {
+            page: trendingResponse?.data?.page || 1,
+            total_pages: trendingResponse?.data?.total_pages || 1
+        };
+        
         if (state.accessToken) {
-            let lists_personal = await client.get('/lists/personal?token=' + state.accessToken).catch(e => { console.error(e) });
-            state.lists_personal = lists_personal?.data || [];
+            const personalResponse = await fetchLists('/lists/personal', { token: state.accessToken });
+            state.lists_personal = personalResponse?.data?.items || [];
+            state.pagination_personal = {
+                page: personalResponse?.data?.page || 1,
+                total_pages: personalResponse?.data?.total_pages || 1
+            };
+            
         }
     } catch (e) {
         console.error(e);
@@ -1121,8 +1198,7 @@ async function getListsOflists() {
 }
 
 function copyToClipboard() {
-    navigator.clipboard.writeText(state.url);
-    // alert("Copied the manifest url: " + state.url);
+    navigator.clipboard.writeText(state.url)
     toast.success('Manifest URL copied to clipboard!');
 }
 
@@ -1194,7 +1270,7 @@ function addListUrl() {
     [url, username, slug, sort] = state.listUrl.match(/https:\/\/trakt\.tv\/users\/([^\/?#]+)\/lists\/([^\/#?]+)(\?[^$]+)?/i);
 
     if (!url || !username || !slug) {
-        alert('Invalid Trakt list URL, make sure it starts with https://trakt.tv/');
+        toast.error('Invalid Trakt list URL, make sure it starts with https://trakt.tv/');
         return;
     }
     if (sort?.split('?')[1]) {
@@ -1207,11 +1283,20 @@ function addListUrl() {
         username: username,
         sort: sort || 'title,asc'
     });
+
+    toast.success(slug + " by " + username + " - list added successfully.");
+
 }
 
 async function searchLists() {
     state.modal.show();
-    state.searchResults = (await axios.get(Consts.currentUrl + '/lists/' + state.searchQuery))?.data || [];
+    const searchResponse = await fetchLists('/lists/' + state.searchQuery);
+    state.searchResults = searchResponse?.data?.items || [];
+    state.searchPagination = {
+        page: searchResponse?.data?.page || 1,
+        total_pages: searchResponse?.data?.total_pages || 1
+    };
+    //state.searchResults = (await axios.get(Consts.currentUrl + '/lists/' + state.searchQuery))?.data || [];
 }
 
 function addList(list) {
@@ -1222,6 +1307,7 @@ function addList(list) {
         sort: list.sort,
         id: list.id
     });
+    toast.success(list.name + " by " + list.user + " - list added successfully.");
 }
 
 function removeList(list) {
@@ -1260,6 +1346,73 @@ async function ValidateRPDB() {
 
 function RPDBposter(val) {
     state.RPDBkey.poster = val.name;
+}
+
+function previousPage(listType) {
+    if (!state[`pagination_${listType}`] || state[`pagination_${listType}`].page <= 1) return;
+    if (state.lists_loading[listType]) return; // Prevent clicks while loading
+    
+    state[`pagination_${listType}`].page--;
+    loadPage(listType);
+}
+
+function nextPage(listType) {
+    const pagination = state[`pagination_${listType}`];
+    if (!pagination || pagination.page >= pagination.total_pages) return;
+    if (state.lists_loading[listType]) return; // Prevent clicks while loading
+    
+    pagination.page++;
+    loadPage(listType);
+}
+
+async function loadPage(listType) {
+    // Don't start another load if already loading
+    if (state.lists_loading[listType]) return;
+
+    try {
+        // Set loading to true
+        state.lists_loading[listType] = true;
+
+        const page = state[`pagination_${listType}`].page;
+        
+        switch(listType) {
+            case 'popular':
+                const popularResponse = await fetchLists('/lists/popular', {page: page});
+                state.lists_popular = popularResponse?.data?.items || [];
+                state.pagination_popular = {
+                    page: popularResponse?.data?.page || 1,
+                    total_pages: popularResponse?.data?.total_pages || 1
+                };
+                break;
+                
+            case 'trending':
+                const trendingResponse = await fetchLists('/lists/trending', {page: page});
+                state.lists_trending = trendingResponse?.data?.items || [];
+                state.pagination_trending = {
+                    page: trendingResponse?.data?.page || 1,
+                    total_pages: trendingResponse?.data?.total_pages || 1
+                };
+                break;
+                
+            case 'personal':
+                if (state.accessToken) {
+                    const personalResponse = await fetchLists('/lists/personal', {token: state.accessToken, page: page});
+                    state.lists_personal = personalResponse?.data?.items || [];
+                    state.pagination_personal = {
+                        page: personalResponse?.data?.page || 1,
+                        total_pages: personalResponse?.data?.total_pages || 1
+                    };
+                }
+                break;
+        }
+    } catch (error) {
+        console.error('Error loading ' + listType + ' page: ', error);
+    } finally {
+        // ALWAYS set loading to false when done
+        if (state.lists_loading) {
+            state.lists_loading[listType] = false;
+        }
+    }
 }
 </script>
 
@@ -1401,17 +1554,6 @@ h1 {
 
 .sorting-dropdown {
     border-radius: 5px;
-    min-width: unset;
-}
-
-.sorting-dropdown :deep(.dropdown-toggle) {
-    color: rgb(26 86 219 / var(--tw-bg-opacity));
-    font-weight: bold;
-    min-width: 6rem;
-}
-
-.sorting-dropdown :deep(.dropdown-toggle-placeholder) {
-    color: #c4c4c4;
 }
 
 .flex-even {

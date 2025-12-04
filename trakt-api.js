@@ -461,27 +461,62 @@ async function getToken({code ,refresh_token}) {
 	return client.post(`/oauth/token`, data)
 }
 
-async function listOfLists(query = String, token) {
+async function listOfLists(query = String, token, page = 1) {
 	try {
-		const popular = [];
+		const result = {
+			page: page,
+			total_pages: 1,
+			items: []
+		};
+		
 		let url, header;
-		if (query == 'trending' || query == 'popular') url = `/lists/${query}/?limit=20`;
-		else if (query == 'personal') {
+		const params = new URLSearchParams();
+		
+		// Add page parameter to all URLs
+		params.append('page', page);
+		params.append('limit', 20);
+		
+		if (query === 'trending' || query === 'popular') {
+			url = `/lists/${query}/?${params.toString()}`;
+		} else if (query === 'personal') {
 			if (token) {
-				url = `/users/me/lists`;
-				header = { headers: { 'Authorization': `Bearer ${token}` } }
+				url = `/users/me/lists?${params.toString()}`;
+				header = { headers: { 'Authorization': `Bearer ${token}` } };
+			} else {
+				return;
 			}
-			else return;
+		} else {
+			params.append('query', query);
+			url = `/search/list/?${params.toString()}`;
 		}
-		else url = `/search/list/?query=${query}`;
-		//console.log(url, header)
 
-		data = await request(url, header);
-		if (!data || !data.data) throw 'error';
-		for (let i = 0; i < data.data.length; i++) {
-			const list = data.data[i].list ? data.data[i].list : data.data[i];
-			if (list && ((list.privacy == 'public') || token)) {
-				popular.push({
+		// Make the request
+		const response = await request(url, header);
+		
+		if (!response || !response.data) {
+			throw new Error('Invalid response from API');
+		}
+		
+		// Extract pagination headers
+		const paginationPage = response.headers?.['x-pagination-page'];
+		const paginationPageCount = response.headers?.['x-pagination-page-count'];
+		
+		// Update pagination info
+		if (paginationPage) {
+			result.page = parseInt(paginationPage, 10) || page;
+		}
+		
+		if (paginationPageCount) {
+			result.total_pages = parseInt(paginationPageCount, 10) || 1;
+		}
+		
+		// Process the items
+		for (let i = 0; i < response.data.length; i++) {
+			const list = response.data[i].list ? response.data[i].list : response.data[i];
+			
+			// Check if list is accessible (public or user has token)
+			if (list && (list.privacy === 'public' || token)) {
+				result.items.push({
 					name: list.name,
 					id: list.ids.trakt,
 					user: list.user.ids.slug ? list.user.ids.slug : list.user.username,
@@ -493,10 +528,17 @@ async function listOfLists(query = String, token) {
 				});
 			}
 		}
-		return popular;
+		
+		return result;
 
 	} catch (e) {
-		console.error(e);
+		console.error('Error in listOfLists:', e);
+		// Return empty result structure on error
+		return {
+			page: page,
+			total_pages: 1,
+			items: []
+		};
 	}
 }
 

@@ -115,7 +115,14 @@ app.get('/getUserProfile', (req, res) => {
 });
 
 app.get('/lists/:query', (req, res) => {
-	listOfLists(req.params.query, req.query.token).then(data => res.json(data)).catch(e => {res.status(400).send(),console.error(e)});
+	const query = req.params.query;
+	const token = req.query.token;
+	const page = req.query.page ? parseInt(req.query.page, 10) : 1;
+	
+	// Validate page parameter
+	const validatedPage = isNaN(page) || page < 1 ? 1 : page;
+
+	listOfLists(query, token, validatedPage).then(data => res.json(data)).catch(e => {res.status(400).send(),console.error(e)});
 });
 
 app.get('/:configuration?/',cacheHeaders, (req, res) => {
