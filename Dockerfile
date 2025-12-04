@@ -1,14 +1,6 @@
 # Multi-stage build for efficiency
 FROM node:18-alpine AS builder
 
-# Accept build arguments
-ARG BASE_URL
-ARG client_id
-
-# Set environment variables during build
-ENV BASE_URL=$BASE_URL
-ENV client_id=$client_id
-
 WORKDIR /app
 
 # Copy package files

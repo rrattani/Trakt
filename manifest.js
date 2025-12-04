@@ -3,7 +3,7 @@ const config = require('./config.js')();
 
 let manifest = {
     "id": "community.trakt-tv",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "name": "Trakt Tv",
     "description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 };
@@ -23,10 +23,18 @@ manifest = { ...manifest,
 
 fs.writeFileSync('./manifest.json', JSON.stringify(manifest));
 
-let oauth_configuration = {
-    "client_id": `${config.client_id}`
+let client_config = {
+    "version": `${manifest.version}`,
+    "name": `${manifest.name}`,
+    "description": `${manifest.description}`,
+    "logoUrl": `${manifest.logo}`,
+    "backgroundUrl": `${manifest.background}`,
+    "types": manifest.types,
+    "baseUrl": `${config.local}`,
+    "oauthClientId": `${config.client_id}`
 }
 
-fs.writeFileSync('./oauth_configuration.json', JSON.stringify(oauth_configuration));
+
+fs.writeFileSync('./vue/public/client-config.json', JSON.stringify(client_config));
 
 //module.exports = manifest;
