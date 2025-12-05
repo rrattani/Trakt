@@ -1,9 +1,10 @@
+const package = require('./package.json');
 const fs = require('fs');
 const config = require('./config.js')();
 
 let manifest = {
     "id": "community.trakt-tv",
-    "version": "1.0.2",
+    "version": `${package.version}`,
     "name": "Trakt Tv",
     "description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 };
