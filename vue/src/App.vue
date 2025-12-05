@@ -15,6 +15,22 @@
 
         <!-- Main Content (only shows when config is loaded) -->
         <div v-else>
+
+            <ListModal 
+                ref="popularModalRef"
+                :modal-id="'popularModal'"
+                :title="'Trakt Popular Lists'"
+                :items="state.lists_popular"
+                :loading="state.lists_loading.popular"
+                :pagination="state.pagination_popular"
+                :list-type="'popular'"
+                @add-list="addList"
+                @close="closeModal('popular')"
+                @page-change="handlePageChange"
+                @opened="onModalOpened('popular')"
+                @closed="onModalClosed('popular')"
+            />
+        
             <!-- Search modal -->
             <div id="searchModal" ref="searchModal" tabindex="-1" aria-hidden="true"
                 class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
@@ -503,7 +519,7 @@
                                 <div class="column flex rounded-md shadow-sm mt-5 w-full" role="group">
                                     <div class="flex rounded-md shadow-sm mt-5 w-full" role="group">
 
-                                        <button @click="state.popularModal.show()" type="button"
+                                        <button @click="showModal('popular')" type="button"
                                             class="grow py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-l-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                                             Browse popular lists
                                         </button>
@@ -753,6 +769,7 @@ import { Modal, Dropdown } from 'flowbite'
 import { useHead } from "@vueuse/head";
 import dropdown from 'vue-dropdowns';
 import VueToggles from "vue-toggles";
+import ListModal from './components/ListModal.vue'
 
 // Load sort options from static JSON
 import * as sortOpts from '../../sortOpts.json';
@@ -925,6 +942,7 @@ watch(() => clientConfig.value.oauthClientId, (newId) => {
 const searchModal = ref();
 const installModal = ref();
 const popularModal = ref();
+const popularModalRef = ref();
 const trendingModal = ref();
 const personalModal = ref();
 
@@ -966,6 +984,68 @@ onMounted(async () => {
     // Try to update OAuth URL after everything is initialized
     setTimeout(updateOAuthUrl, 500);
 });
+
+// Function to show modal
+const showModal = async (modalType) => {
+    // Get the modal ref
+    const modalRef = getModalRef(modalType)
+    
+    if (modalRef?.value?.show) {
+        // Show the modal
+        modalRef.value.show()
+        
+        // Load data if needed
+        if (shouldLoadData(modalType)) {
+            await loadPage(modalType)
+        }
+    }
+}
+
+// Function to close modal
+const closeModal = async (modalType) => {
+    // Get the modal ref
+    const modalRef = getModalRef(modalType)
+    
+    if (modalRef?.value?.show) {
+        // Show the modal
+        modalRef.value.hide()                
+    }
+}
+
+// Helper function to get modal ref
+const getModalRef = (modalType) => {
+    switch (modalType) {
+        case 'personal': return personalModalRef
+        case 'popular': return popularModalRef
+        case 'trending': return trendingModalRef
+        case 'search': return searchModalRef
+        default: return null
+    }
+}
+
+// Helper function to check if data should be loaded
+const shouldLoadData = (modalType) => {
+    const lists = {
+        personal: state.lists_personal,
+        popular: state.lists_popular,
+        trending: state.lists_trending,
+        search: state.searchResults
+    }
+    
+    return !lists[modalType] || lists[modalType].length === 0
+}
+
+// Modal event handlers
+const onModalOpened = (modalType) => {
+    console.log(`${modalType} modal opened`)
+    // Any logic you need when modal opens
+}
+
+const onModalClosed = (modalType) => {
+    console.log(`${modalType} modal closed`)
+    // Any cleanup when modal closes
+}
+
 
 // Add reactive state for OAuth button
 const authButtonState = reactive({
@@ -1364,6 +1444,17 @@ function nextPage(listType) {
     pagination.page++;
     loadPage(listType);
 }
+
+const handlePageChange = async (payload) => {
+    const { listType, page } = payload
+    
+    // Update pagination state
+    state[`pagination_${listType}`].page = page
+    
+    // Load the page
+    await loadPage(listType)
+}
+
 
 async function loadPage(listType) {
     // Don't start another load if already loading
