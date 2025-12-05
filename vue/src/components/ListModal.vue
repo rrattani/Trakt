@@ -6,7 +6,7 @@
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full flex flex-col">
                 <!-- Modal header -->
                 <div class="modal-header">
-                    <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
+                    <div class="flex justify-between items-start p-4 rounded-t dark:border-gray-600">
                         <h3 class="w-full text-xl font-semibold text-gray-900 dark:text-white mr-4">
                             <slot name="header">
                                 {{ title }}
@@ -23,6 +23,29 @@
                             <span class="sr-only">Close modal</span>
                         </button>
                     </div>
+                    <div v-if="listType === 'search'" class="w-full px-4">
+                        <div class="relative">
+                            <div
+                                class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                                <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="search" id="searchModalInput"
+                                v-model="searchQueryModel"
+                                @keyup.enter="triggerSearch"
+                                ref="searchInput"
+                                class="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Search Trakt lists" required>
+                            <button @click="triggerSearch" :disabled="loading"
+                                class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+                        </div>
+                    </div>
+                    <div v-if="listType === 'search'" class="flex justify-between items-start p-2 rounded-t border-b dark:border-gray-600" />
+                    <div v-else class="flex justify-between items-start rounded-t border-b dark:border-gray-600" />
                 </div>
                 <!-- Modal body -->
                 <div class="p-6 space-y-6 flex-1 overflow-y-auto relative">
@@ -55,13 +78,15 @@
                                         count: {{ item.item_count }}</span>
                                 </h5>
                             </a>
-                            <p :id="`${modalId}_${item.id}_less`" class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                {{ item.description.slice(0, 100) }} <button class="readmore"
-                                    @click="readmore(item.id)">read more</button></p>
-                            <p :id="`${modalId}_${item.id}_more`"
-                                class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                {{ item.description }} <button class="readless" @click="readless(item.id)">read
-                                    less</button></p>
+                            <div v-if="item.description">
+                                <p :id="`${modalId}_${item.id}_less`" class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                                    {{ item.description.slice(0, 100) }} <button v-if="item.description.length > 100" class="readmore text-blue-600 hover:underline"
+                                        @click="readmore(item.id)">read more</button></p>
+                                <p :id="`${modalId}_${item.id}_more`"
+                                    class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
+                                    {{ item.description }} <button class="readless text-blue-600 hover:underline" @click="readless(item.id)">read
+                                        less</button></p>
+                            </div>
                             <button @click="$emit('add-list', item)"
                                 class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 Add list
@@ -142,13 +167,44 @@ const props = defineProps({
             page: 1,
             total_pages: 1
         })
+    },
+    searchQuery: {
+        type: String,
+        default: ''
     }
 })
 
-const emit = defineEmits(['add-list', 'page-change', 'close', 'opened', 'closed'])
+const emit = defineEmits(['add-list', 'page-change', 'close', 'opened', 'closed', 'search'])
 
 const modalRef = ref(null)
 const modalInstance = ref(null)
+
+// Search related Method
+
+// v-model for searchQuery
+const searchQueryModel = defineModel('searchQuery');
+const searchInput = ref(null);
+
+// Auto-focus search input when modal opens
+function onModalOpened() {
+    if (props.listType === 'search') {
+        nextTick(() => {
+            if (searchInput.value) {
+                searchInput.value.focus();
+                // Optional: Select all text for easy editing
+                // searchInput.value.select();
+            }
+        });
+    }
+    emit('opened');
+}
+
+// Trigger search (just emits the current value)
+function triggerSearch() {
+    // Emit the current search query
+    // The parent's watcher will detect the change and perform search 
+    emit('search');
+}
 
 // Modal Methods
 const show = () => {
@@ -264,3 +320,16 @@ defineExpose({
     close
 })
 </script>
+<style scoped>
+.footer-modal {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    display: flex;
+}
+
+.footer-button {
+    width: max-content;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+</style>

@@ -485,6 +485,13 @@ async function listOfLists(query = String, token, page = 1) {
 			} else {
 				return;
 			}
+		} else if (query === 'liked') {
+			if (token) {
+				url = `/users/me/likes?${params.toString()}`;
+				header = { headers: { 'Authorization': `Bearer ${token}` } };
+			} else {
+				return;
+			}
 		} else {
 			params.append('query', query);
 			url = `/search/list/?${params.toString()}`;
@@ -514,18 +521,22 @@ async function listOfLists(query = String, token, page = 1) {
 		for (let i = 0; i < response.data.length; i++) {
 			const list = response.data[i].list ? response.data[i].list : response.data[i];
 			
-			// Check if list is accessible (public or user has token)
-			if (list && (list.privacy === 'public' || token)) {
-				result.items.push({
-					name: list.name,
-					id: list.ids.trakt,
-					user: list.user.ids.slug ? list.user.ids.slug : list.user.username,
-					slug: list.ids.slug,
-					likes: list.likes,
-					item_count: list.item_count,
-					description: list.description,
-					sort: list.sort_by + ',' + list.sort_how
-				});
+			try {
+				// Check if list is accessible (public or user has token)
+				if (list && (list.privacy === 'public' || token)) {				
+					result.items.push({
+						name: list.name,
+						id: list.ids.trakt,
+						user: list.user?.ids?.slug ? list.user.ids.slug : list.user.username,
+						slug: list.ids.slug,
+						likes: list.likes,
+						item_count: list.item_count,
+						description: list.description,
+						sort: list.sort_by + ',' + list.sort_how
+					});
+				}
+			} catch (e) {
+				// Skipping lists where all info is not there.				
 			}
 		}
 		

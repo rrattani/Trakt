@@ -28,342 +28,71 @@
                 @close="closeModal('popular')"
                 @page-change="handlePageChange"
                 @opened="onModalOpened('popular')"
-                @closed="onModalClosed('popular')"
+                @closed="onModalClosed('popular')"                
+            />
+
+            <ListModal 
+                ref="trendingModalRef"
+                :modal-id="'trendingModal'"
+                :title="'Trakt Trending Lists'"
+                :items="state.lists_trending"
+                :loading="state.lists_loading.trending"
+                :pagination="state.pagination_trending"
+                :list-type="'trending'"
+                @add-list="addList"
+                @close="closeModal('trending')"
+                @page-change="handlePageChange"
+                @opened="onModalOpened('trending')"
+                @closed="onModalClosed('trending')"
+            />
+
+            <ListModal 
+                ref="personalModalRef"
+                :modal-id="'personalModal'"
+                :title="'Trakt Personal Lists'"
+                :items="state.lists_personal"
+                :loading="state.lists_loading.personal"
+                :pagination="state.pagination_personal"
+                :list-type="'personal'"
+                @add-list="addList"
+                @close="closeModal('personal')"
+                @page-change="handlePageChange"
+                @opened="onModalOpened('personal')"
+                @closed="onModalClosed('personal')"
+            />
+
+            <ListModal 
+                ref="likedModalRef"
+                :modal-id="'likedModal'"
+                :title="'Trakt Liked Lists'"
+                :items="state.lists_liked"
+                :loading="state.lists_loading.liked"
+                :pagination="state.pagination_liked"
+                :list-type="'liked'"
+                @add-list="addList"
+                @close="closeModal('liked')"
+                @page-change="handlePageChange"
+                @opened="onModalOpened('liked')"
+                @closed="onModalClosed('liked')"
+            />
+
+            <ListModal 
+                ref="searchModalRef"
+                :modal-id="'searchModal'"
+                :title="'Search Trakt Lists'"
+                :items="state.lists_search"
+                :loading="state.lists_loading.search"
+                :pagination="state.pagination_search"
+                :list-type="'search'"
+                v-model:search-query="state.searchQuery"
+                @add-list="addList"
+                @close="closeModal('search')"
+                @page-change="handlePageChange"
+                @opened="onModalOpened('search')"
+                @closed="onModalClosed('search')"
+                @search="performSearch"
             />
         
-            <!-- Search modal -->
-            <div id="searchModal" ref="searchModal" tabindex="-1" aria-hidden="true"
-                class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
-                <div class="relative p-4 w-full max-w-2xl h-full md:max-h-screen overflow-hidden">
-                    <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full">
-                        <!-- Modal header -->
-                        <div class="modal-header">
-                            <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
-                                <h3 class="w-full text-xl font-semibold text-gray-900 dark:text-white mr-4">
-                                    <form @submit.prevent="searchLists" class="w-full">
-                                        <label for="searchModalInput"
-                                            class="relative mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300">Search
-                                            Trakt lists</label>
-                                        <div class="relative">
-                                            <div
-                                                class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                                <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </div>
-                                            <input v-model="state.searchQuery" type="search" id="searchModalInput"
-                                                class="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search Trakt lists" required>
-                                            <button type="submit"
-                                                class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-                                        </div>
-                                    </form>
-                                </h3>
-                                <!-- Close Modal button -->
-                                <button type="button"
-                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                    @click="state.modal.toggle">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-6">
-                            <div class="flex flex-col w-full gap-3 z-10">
-                                <div v-for="item in state.searchResults" :key="item.id"
-                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-                                    <a href="#">
-                                        <h5
-                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                            {{ item.name }} <small>by {{ item.user }}</small>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">{{
-                                    item.likes
-                                }}
-                                                likes</span>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Items
-                                                count: {{ item.item_count }}</span>
-                                        </h5>
-                                    </a>
-                                    <p v-if="item.description" :id="`${item.id}_less`"
-                                        class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description.slice(0, 100) }} <button class="readmore"
-                                            @click="readmore(item.id)">read more</button></p>
-                                    <p :id="`${item.id}_more`"
-                                        class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description }} <button class="readless" @click="readless(item.id)">read
-                                            less</button></p>
-                                    <button @click="addList(item)"
-                                        class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                        Add list
-                                        <svg aria-hidden="true" class="ml-2 -mr-1 w-4 h-4" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- personal Lists modal -->
-            <div id="personalModal" ref="personalModal" tabindex="-1" aria-hidden="true"
-                class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
-                <div class="relative p-4 w-full max-w-2xl h-full md:max-h-screen overflow-hidden">
-                    <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full">
-                        <!-- Modal header -->
-                        <div class="modal-header">
-
-                            <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
-                                <h3 class="w-full text-xl font-semibold text-gray-900 dark:text-white mr-4">Trakt personal
-                                    Lists
-                                </h3>
-                                <button @click="state.personalModal.toggle" type="button"
-                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-6">
-                            <div class="flex flex-col w-full gap-3 z-10">
-                                <div v-for="item in state.lists_personal" :key="item.id"
-                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-                                    <a href="#">
-                                        <h5
-                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                            {{ item.name }} <small>by {{ item.user }}</small>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">{{
-                                    item.likes
-                                }}
-                                                likes</span>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Items
-                                                count: {{ item.item_count }}</span>
-                                        </h5>
-                                    </a>
-                                    <p :id="`${item.id}_less`" class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description?.slice(0, 100) }} <button class="readmore"
-                                            @click="readmore(item.id)">read more</button></p>
-                                    <p :id="`${item.id}_more`"
-                                        class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description }} <button class="readless" @click="readless(item.id)">read
-                                            less</button></p>
-                                    <button @click="addList(item)"
-                                        class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                        Add list
-                                        <svg aria-hidden="true" class="ml-2 -mr-1 w-4 h-4" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- popular Lists modal -->
-            <div id="popularModal" ref="popularModal" tabindex="-1" aria-hidden="true"
-                class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
-                <div class="relative p-4 w-full max-w-2xl h-full md:max-h-screen overflow-hidden">
-                    <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full flex flex-col">
-                        <!-- Modal header -->
-                        <div class="modal-header">
-                            <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
-                                <h3 class="w-full text-xl font-semibold text-gray-900 dark:text-white mr-4">Trakt popular
-                                    Lists
-                                </h3>
-                                <button @click="state.popularModal.toggle" type="button"
-                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-6 flex-1 overflow-y-auto relative">
-                            <!-- Show spinner when loading -->
-                            <div v-if="state.lists_loading.popular" class="absolute inset-0 bg-white/70 dark:bg-gray-900/70 flex items-center justify-center z-50">
-                                <div class="text-center">
-                                    <svg class="w-12 h-12 mx-auto text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <p class="mt-2 text-gray-700 dark:text-gray-300">Loading lists...</p>
-                                </div>
-                            </div>
-
-                            <!-- Show lists when not loading -->
-                            <div v-else class="flex flex-col w-full gap-3 z-10">
-                                <div v-for="item in state.lists_popular" :key="item.id"
-                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-                                    <a href="#">
-                                        <h5
-                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                            {{ item.name }} <small>by {{ item.user }}</small>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">{{
-                                    item.likes
-                                }}
-                                                likes</span>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Items
-                                                count: {{ item.item_count }}</span>
-                                        </h5>
-                                    </a>
-                                    <p :id="`${item.id}_less`" class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description.slice(0, 100) }} <button class="readmore"
-                                            @click="readmore(item.id)">read more</button></p>
-                                    <p :id="`${item.id}_more`"
-                                        class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description }} <button class="readless" @click="readless(item.id)">read
-                                            less</button></p>
-                                    <button @click="addList(item)"
-                                        class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                        Add list
-                                        <svg aria-hidden="true" class="ml-2 -mr-1 w-4 h-4" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Footer -->
-                        <div class="footer-modal border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
-                            <div class="flex items-center p-6 space-x-2 rounded-b">
-                                <div class="flex items-center justify-center mt-6 space-x-2">
-                                    <button  @click="previousPage('popular')"  type="button"
-                                        :disabled="!state.pagination_popular || state.pagination_popular.page <= 1" 
-                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"> 
-                                        Previous 
-                                    </button>
-                                    <!-- Safe page display -->
-                                    <span class="text-sm text-gray-700 dark:text-gray-300"> 
-                                        Page {{ state.pagination_popular?.page || 1 }} of {{ state.pagination_popular?.total_pages || 1 }}
-                                    </span>
-                                    <button @click="nextPage('popular')" type="button" 
-                                        :disabled="!state.pagination_popular || state.pagination_popular.page >= state.pagination_popular.total_pages"
-                                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"> 
-                                        Next 
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-6 space-x-2 rounded-b">
-                                <button @click="state.popularModal.toggle" type="button" 
-                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"> 
-                                    Close 
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- trending Lists modal -->
-            <div id="trendingModal" ref="trendingModal" tabindex="-1" aria-hidden="true"
-                class="hidden overflow-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
-                <div class="relative p-4 w-full max-w-2xl h-full md:max-h-screen overflow-hidden">
-                    <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 overflow-y-auto h-full">
-                        <!-- Modal header -->
-                        <div class="modal-header">
-
-                            <div class="flex justify-between items-start p-4 rounded-t border-b dark:border-gray-600">
-                                <h3 class="w-full text-xl font-semibold text-gray-900 dark:text-white mr-4">Trakt trending
-                                    Lists
-                                </h3>
-                                <button @click="state.trendingModal.toggle" type="button"
-                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-6">
-                            <div class="flex flex-col w-full gap-3 z-10">
-                                <div v-for="item in state.lists_trending" :key="item.id"
-                                    class="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-                                    <a href="#">
-                                        <h5
-                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                            {{ item.name }} <small>by {{ item.user }}</small>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">{{
-                                    item.likes
-                                }}
-                                                likes</span>
-                                            <span
-                                                class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Items
-                                                count: {{ item.item_count }}</span>
-                                        </h5>
-                                    </a>
-                                    <p :id="`${item.id}_less`" class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description.slice(0, 100) }} <button class="readmore"
-                                            @click="readmore(item.id)">read more</button></p>
-                                    <p :id="`${item.id}_more`"
-                                        class="hidden mb-3 font-normal text-gray-700 dark:text-gray-400">
-                                        {{ item.description }} <button class="readless" @click="readless(item.id)">read
-                                            less</button></p>
-                                    <button @click="addList(item)"
-                                        class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                        Add list
-                                        <svg aria-hidden="true" class="ml-2 -mr-1 w-4 h-4" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- install Modal -->
             <div id="installModal" ref='installModal' tabindex="-1" aria-hidden="true"
@@ -516,23 +245,30 @@
 
                                 <span class="text-xs font-semibold text-gray-600 py-2 mt-10">Add lists</span>
 
-                                <div class="column flex rounded-md shadow-sm mt-5 w-full" role="group">
-                                    <div class="flex rounded-md shadow-sm mt-5 w-full" role="group">
-
+                                <div class="flex flex-col gap-5 mt-5 w-full" role="group">
+                                    <!-- First row -->
+                                    <div class="flex rounded-md shadow-sm w-full" role="group">
                                         <button @click="showModal('popular')" type="button"
-                                            class="grow py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-l-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                                            class="flex-1 py-2 px-4 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-l-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-500 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                                             Browse popular lists
                                         </button>
-                                        <button @click="state.trendingModal.show()" type="button"
-                                            class="grow py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-r-md border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        <button @click="showModal('trending')" type="button"
+                                            class="flex-1 py-2 px-4 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-300 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-500 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
                                             Browse trending lists
                                         </button>
                                     </div>
 
-                                    <button @click="state.personalModal.show()" type="button"
-                                        class="grow py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-r-md border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
-                                        Browse personal lists (requires login)
-                                    </button>
+                                    <!-- Second row -->
+                                    <div class="flex rounded-md shadow-sm w-full" role="group">
+                                        <button @click="showModal('personal')" type="button"
+                                            class="flex-1 py-2 px-4 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-l-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-500 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                                            Browse personal lists (requires login)
+                                        </button>
+                                        <button @click="showModal('liked')" type="button"
+                                            class="flex-1 py-2 px-4 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-300 rounded-r-md hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-700 dark:border-gray-500 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white">
+                                            Browse liked lists (requires login)
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="flex items-center justify-center space-x-2 mt-5">
@@ -818,18 +554,21 @@ const state = reactive({
     lists_popular: null,
     lists_trending: null,
     lists_personal: null,
+    lists_search: null,
+    lists_liked: null,
     pagination_popular: null,
     pagination_trending: null,
     pagination_personal: null,
+    pagination_search: null,
+    pagination_liked: null,
     lists_loading: {
         popular: false,
         trending: false,
-        personal: false
+        personal: false,
+        search: false,
+        liked: false
     },
     install: null,
-    popularModal: null,
-    trendingModal: null,
-    personalModal: null,
     accessToken: null,
     refreshToken: null,
     expires: null,
@@ -838,6 +577,7 @@ const state = reactive({
     user: {},
     RPDBkey: { key: null, valid: null, poster: 'poster-default', posters: null, tier: null },
     authButtonInitialized: false, // Track if auth button has been initialized
+    lastSearchQuery: ''
 });
 
 // Computed property for stylized types - safe with fallback
@@ -850,6 +590,22 @@ const stylizedTypes = computed(() => {
 
 // Constants from sortOpts
 const Consts = { ...sortOpts };
+
+// Check if search modal is open
+function isSearchModalOpen() {
+    const isOpen = searchModalRef.value?.isOpen || 
+                   state.searchModalVisible || 
+                   false;
+    
+    console.log('isSearchModalOpen check:', {
+        modalRef: searchModalRef.value,
+        isOpen: searchModalRef.value?.isOpen,
+        stateModalVisible: state.searchModalVisible,
+        finalResult: isOpen
+    });
+    
+    return isOpen;
+}
 
 // ========== FIX 2: Watch for config changes to update head ==========
 watch(() => clientConfig.value, (newConfig) => {
@@ -939,12 +695,12 @@ watch(() => clientConfig.value.oauthClientId, (newId) => {
     }
 });
 
-const searchModal = ref();
 const installModal = ref();
-const popularModal = ref();
 const popularModalRef = ref();
-const trendingModal = ref();
-const personalModal = ref();
+const trendingModalRef = ref();
+const searchModalRef = ref();
+const personalModalRef = ref();
+const likedModalRef = ref();
 
 const client = axios.create({
     baseURL: Consts.currentUrl,
@@ -974,10 +730,6 @@ onMounted(async () => {
 
     // Initialize modals AFTER DOM is ready
     nextTick(() => {
-        state.modal = new Modal(searchModal.value);
-        state.popularModal = new Modal(popularModal.value);
-        state.trendingModal = new Modal(trendingModal.value);
-        state.personalModal = new Modal(personalModal.value);
         state.install = new Modal(installModal.value);
     });
     
@@ -1016,6 +768,7 @@ const closeModal = async (modalType) => {
 const getModalRef = (modalType) => {
     switch (modalType) {
         case 'personal': return personalModalRef
+        case 'liked': return likedModalRef
         case 'popular': return popularModalRef
         case 'trending': return trendingModalRef
         case 'search': return searchModalRef
@@ -1027,9 +780,10 @@ const getModalRef = (modalType) => {
 const shouldLoadData = (modalType) => {
     const lists = {
         personal: state.lists_personal,
+        liked: state.lists_liked,
         popular: state.lists_popular,
         trending: state.lists_trending,
-        search: state.searchResults
+        search: state.lists_search
     }
     
     return !lists[modalType] || lists[modalType].length === 0
@@ -1270,6 +1024,13 @@ async function getListsOflists() {
                 page: personalResponse?.data?.page || 1,
                 total_pages: personalResponse?.data?.total_pages || 1
             };
+
+            const likedResponse = await fetchLists('/lists/liked', { token: state.accessToken });
+            state.lists_liked = likedResponse?.data?.items || [];
+            state.pagination_liked = {
+                page: likedResponse?.data?.page || 1,
+                total_pages: likedResponse?.data?.total_pages || 1
+            };
             
         }
     } catch (e) {
@@ -1364,19 +1125,31 @@ function addListUrl() {
         sort: sort || 'title,asc'
     });
 
+    state.listUrl = '';
+
     toast.success(slug + " by " + username + " - list added successfully.");
 
 }
 
+const performSearch = async () => {
+    if (state.searchQuery !== state.lastSearchQuery) {
+        state.lastSearchQuery = state.searchQuery
+        state.lists_search = [];
+        state.pagination_search = { page: 1, total_pages: 1 };
+    }
+    
+    // Load the page
+    await loadPage('search')
+}
+
+
 async function searchLists() {
-    state.modal.show();
-    const searchResponse = await fetchLists('/lists/' + state.searchQuery);
-    state.searchResults = searchResponse?.data?.items || [];
-    state.searchPagination = {
-        page: searchResponse?.data?.page || 1,
-        total_pages: searchResponse?.data?.total_pages || 1
-    };
-    //state.searchResults = (await axios.get(Consts.currentUrl + '/lists/' + state.searchQuery))?.data || [];
+    if (state.searchQuery !== state.lastSearchQuery) {
+        state.lastSearchQuery = state.searchQuery
+        state.lists_search = [];
+        state.pagination_search = { page: 1, total_pages: 1 };
+    }
+    showModal('search');
 }
 
 function addList(list) {
@@ -1464,7 +1237,7 @@ async function loadPage(listType) {
         // Set loading to true
         state.lists_loading[listType] = true;
 
-        const page = state[`pagination_${listType}`].page;
+        const page = state[`pagination_${listType}`]?.page || 1;
         
         switch(listType) {
             case 'popular':
@@ -1495,6 +1268,23 @@ async function loadPage(listType) {
                     };
                 }
                 break;
+            case 'liked':
+                if (state.accessToken) {
+                    const likedResponse = await fetchLists('/lists/liked', {token: state.accessToken, page: page});
+                    state.lists_liked = likedResponse?.data?.items || [];
+                    state.pagination_liked = {
+                        page: likedResponse?.data?.page || 1,
+                        total_pages: likedResponse?.data?.total_pages || 1
+                    };
+                }
+                break;
+            case 'search':
+                const searchResponse = await fetchLists('/lists/' + state.searchQuery, {page: page});
+                state.lists_search = searchResponse?.data?.items || [];
+                state.pagination_search = {
+                    page: searchResponse?.data?.page || 1,
+                    total_pages: searchResponse?.data?.total_pages || 1
+                };
         }
     } catch (error) {
         console.error('Error loading ' + listType + ' page: ', error);
