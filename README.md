@@ -6,9 +6,9 @@
 - PORT=63355
 - BASE_URL=https://trakt-tv.my.domain.com # use http://127.0.0.1:63355 when running locally
 
-You would also need to add your the BASE_URL defined in the .env redirect URI of Your API Apps in Trakt Settings: https://trakt.tv/oauth/applications 
-
-Make sure to add the redirect URI the API app, where client_id and client_secret defined in the .env matches in Trakt API App.
+# Important Notes
+- In your Trakt API application settings (https://trakt.tv/oauth/applications), add your BASE_URL (defined in the .env file) to the list of redirect URIs.
+- Verify that the client_id and client_secret stored in your .env file match the credentials shown for this app in the Trakt dashboard.
 
 # Build and Run
 - npm install
