@@ -1,6 +1,6 @@
 {
 	"name": "community.trakt-tv",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Addon for getting Trakt's public and user lists, recommendations and watch list.",
 	"main": "server.js",
 	"scripts": {		
