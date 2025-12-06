@@ -966,21 +966,17 @@ function getDirection(sort = '', direction = '') {
     
     // Use find() instead of for...in for arrays
     const found = Consts.SortDirections.find(option => option.value == sort);
-    direction = found ? found.name : (direction || 'Descending');
-    console.log('get direction: ' + direction);
-    return direction;
+    return found ? found.name : (direction || 'Ascending');;
 }
 
 function getSorting(sort = '') {
     sort = sort.split(',').length ? sort.split(',')[0] : sort;
-    for (let option in Consts.SortOptions) {
-        if (Consts.SortOptions[option].value == sort) return Consts.SortOptions[option].name;
-    }
-    return;
+    const found = Consts.SortOptions.find(option => option.value == sort);
+    return found ? found.name : 'Rank';
 }
 
 function updateSorting(sort, list) {
-    if (typeof list.id == 'string' && list.id.startsWith('trakt_')) {
+    if (list && list.id && typeof list.id == 'string' && list.id.startsWith('trakt_')) {
         const index = state.genericLists.indexOf(list);
         state.genericLists[index].sort = sort.value;
     } else {
@@ -990,11 +986,7 @@ function updateSorting(sort, list) {
 }
 
 function updateSortingDirection(direction, list) {
-    
-    // Convert ID to string for safe comparison
-    const listId = String(list?.id || '');
-
-    if (listId.startsWith('trakt_')) {
+    if (list && list.id && typeof list.id == 'string' && list.id.startsWith('trakt_')) {
         const index = state.genericLists.indexOf(list);
         state.genericLists[index].direction = direction.value;
     } else {
