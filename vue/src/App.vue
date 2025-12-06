@@ -378,16 +378,19 @@
                                 <div class="mt-10">
                                     <span class="text-xs font-semibold text-gray-600 py-2">Generic lists</span>
                                     <draggable v-model="state.genericLists" group="generics" item-key="element.id"
+                                        :handle="'.drag-handle'"
+                                        :cancel="'.no-drag'"
+                                        :preventOnFilter=false
                                         @start="state.genericDrag = true" @end="state.genericDrag = false"
                                         class="mt-5 w-full text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         <template #item="{ element }">
                                             <div
                                                 class="grabbable py-2 px-4 w-full rounded-t-lg border-b border-gray-200 dark:border-gray-600 flex">
                                                 <div class="flex">
-                                                    <span class="mr-2 dragable-title">
+                                                    <span class="drag-handle mr-2 dragable-title">
                                                         {{ element.name }}
                                                     </span>
-                                                    <div class="flex">
+                                                    <div class="no-drag flex">
                                                         <VueToggles class="separated-toggle"
                                                             v-if="element.id === 'trakt_watchlist'"
                                                             :value="element.separated"
@@ -398,7 +401,7 @@
                                                             checkedText="Enabled" />
                                                     </div>
                                                 </div>
-                                                <div class="flex flex-even">
+                                                <div class="no-drag flex flex-even">
                                                     <dropdown v-if="element.sortable" class="sorting-dropdown"
                                                         :options="Consts.SortOptions"
                                                         :selected="{ name: getSorting(element.sort), value: element.sort }"
@@ -417,12 +420,15 @@
                                     </draggable>
                                     <span class="text-xs font-semibold text-gray-600 py-2">Trakt lists</span>
                                     <draggable v-if="state.lists.length" v-model="state.lists" group="lists"
+                                        :handle="'.drag-handle'"
+                                        :cancel="'.no-drag'"
+                                        :preventOnFilter=false 
                                         item-key="element.id" @start="state.drag = true" @end="state.drag = false"
                                         class="mt-5 w-full text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         <template #item="{ element }">
                                             <div
                                                 class="grabbable py-2 px-4 w-full rounded-t-lg border-b border-gray-200 dark:border-gray-600 flex">
-                                                <div class="flex">
+                                                <div class="drag-handle flex">
                                                     <span class="mr-2 dragable-title">
                                                         {{ element.name || element.slug }}
                                                     </span>
@@ -430,20 +436,22 @@
                                                         class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 mr-2">
                                                         {{ element.username }}
                                                     </span>
-                                                    <button type="button"
-                                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        @click="removeList(element)">
-                                                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor"
-                                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                            <path fill-rule="evenodd"
-                                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                                clip-rule="evenodd">
-                                                            </path>
-                                                        </svg>
-                                                        <span class="sr-only">Remove list</span>
-                                                    </button>
+                                                    <div class="no-drag flex">
+                                                        <button type="button"
+                                                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                                            @click="removeList(element)">
+                                                            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor"
+                                                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                    clip-rule="evenodd">
+                                                                </path>
+                                                            </svg>
+                                                            <span class="sr-only">Remove list</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div class="flex flex-even">
+                                                <div class="no-drag flex flex-even">
                                                     <dropdown class="sorting-dropdown" :options="Consts.SortOptions"
                                                         :selected="{ name: getSorting(element.sort), value: element.sort }"
                                                         v-on:updateOption="updateSorting($event, element)"
@@ -955,10 +963,12 @@ function loadConfig() {
 
 function getDirection(sort = '', direction = '') {
     sort = sort.split(',').length > 1 ? sort.split(',')[1] : direction;
-    for (let option in Consts.SortDirections) {
-        if (Consts.SortDirections[option].value == sort) return Consts.SortDirections[option].name;
-    }
-    return;
+    
+    // Use find() instead of for...in for arrays
+    const found = Consts.SortDirections.find(option => option.value == sort);
+    direction = found ? found.name : (direction || 'Descending');
+    console.log('get direction: ' + direction);
+    return direction;
 }
 
 function getSorting(sort = '') {
@@ -980,7 +990,11 @@ function updateSorting(sort, list) {
 }
 
 function updateSortingDirection(direction, list) {
-    if (list.id?.startsWith('trakt_')) {
+    
+    // Convert ID to string for safe comparison
+    const listId = String(list?.id || '');
+
+    if (listId.startsWith('trakt_')) {
         const index = state.genericLists.indexOf(list);
         state.genericLists[index].direction = direction.value;
     } else {
@@ -1122,7 +1136,7 @@ function addListUrl() {
         name: slug,
         slug: slug,
         username: username,
-        sort: sort || 'title,asc'
+        sort: sort || 'rank,asc'
     });
 
     state.listUrl = '';
@@ -1157,7 +1171,7 @@ function addList(list) {
         name: list.name,
         slug: list.slug,
         username: list.user,
-        sort: list.sort,
+        sort: list.sort || 'rank,asc',
         id: list.id
     });
     toast.success(list.name + " by " + list.user + " - list added successfully.");
